@@ -8,7 +8,9 @@ namespace core;
 class Core
 {
     private static $instance;
-    private static $mainTemplate;
+    private $mainTemplate;
+    private $DB;
+
     private function __construct()
     {
     }
@@ -26,13 +28,29 @@ class Core
         }
     }
     /**
+     * Повертає об'єкт для роботи з базою даних
+     * @return DB об'єкт для роботи з базою даних
+     */
+    public function getDB()
+    {
+        return $this->DB;
+    }
+    /**
      * Ініціалізація системи
      */
     public function init()
     {
+        global $CMSConfig;
         session_start();
         spl_autoload_register('\core\Core::__autoload');
-        self::$mainTemplate = new Template();
+        $this->mainTemplate = new Template();
+        $this->DB = new \core\DB(
+            $CMSConfig['Database']['Server'],
+            $CMSConfig['Database']['User'],
+            $CMSConfig['Database']['Password'],
+            $CMSConfig['Database']['DatabaseName']
+
+        );
     }
     /**
      * Виконує основний процес роботи CMS-системи
@@ -42,12 +60,15 @@ class Core
         $path = $_GET['path'];
         $pathParts = explode('/', $path);
         $className = ucFirst($pathParts[0]);
+
         if (empty($className)) {
             $fullClassName = 'controllers\\Site';
         } else {
             $fullClassName = 'controllers\\' . $className;
         }
+
         $methodName = ucFirst($pathParts[1]);
+
         if (empty($methodName)) {
             $fullMethodName = 'actionIndex';
         } else {
@@ -56,7 +77,6 @@ class Core
 
         if (class_exists($fullClassName)) {
             $controller = new $fullClassName();
-
             if (method_exists($controller, $fullMethodName)) {
                 $method = new \ReflectionMethod($fullClassName, $fullMethodName);
                 $paramsArray = [];
@@ -66,7 +86,7 @@ class Core
                 $result = $method->invokeArgs($controller, $paramsArray);
 
                 if (is_array($result)) {
-                    self::$mainTemplate->setParams($result);
+                    $this->mainTemplate->setParams($result);
                 }
             } else {
                 throw new \Exception('404 Not Found');
@@ -82,7 +102,7 @@ class Core
      */
     public function done()
     {
-        self::$mainTemplate->display('views/layout/index.php');
+        $this->mainTemplate->display('views/layout/index.php');
     }
     /**
      * Автозавантаження класів

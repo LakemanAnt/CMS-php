@@ -10,14 +10,24 @@ class DBQuery
     protected $tableName;
     protected $isertingRow;
     protected $updatingRow;
+    protected $isOneRow;
     public function __construct($tableName)
     {
         $this->tableName = $tableName;
         $this->type = null;
         $this->fields = '*';
         $this->where = [];
+        $this->isOneRow = false;
     }
-
+    public function one()
+    {
+        $this->isOneRow = true;
+        return $this;
+    }
+    public function isOne()
+    {
+        return $this->isOneRow;
+    }
     public function insert($row)
     {
         $this->type = 'INSERT';

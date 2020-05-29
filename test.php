@@ -26,16 +26,17 @@ $queryUpdate = new \core\DBQuery('users');
 $queryUpdate->update(['password' => 'qawsed'])->where(['id' => 3]);
 var_dump($queryUpdate->getSQL());
 
+
 $db = new \core\DB(
     //TODO
-    // $CMSConfig['Datebase']['Server'],
-    // $CMSConfig['Datebase']['User'],
-    // $CMSConfig['Datebase']['Password'],
-    // $CMSConfig['Database']['DatebaseName']
-    'localhost',
-    'root',
-    'root',
-    'project_bd'
+    $CMSConfig['Database']['Server'],
+    $CMSConfig['Database']['User'],
+    $CMSConfig['Database']['Password'],
+    $CMSConfig['Database']['DatabaseName']
+    // 'localhost',
+    // 'root',
+    // 'root',
+    // 'project_bd'
 );
 $db->executeQuery($queryInsert);
 $db->executeQuery($queryDelete);
